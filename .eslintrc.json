@@ -11,7 +11,7 @@
     },
     "rules": {
         "node/shebang": "error",
-        "indent": ["error", 4],
+        "indent": ["error", 4, { "SwitchCase": 1 }],
         "prefer-const": ["error", {
             "destructuring": "any",
             "ignoreReadBeforeAssign": false

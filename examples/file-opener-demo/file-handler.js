@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { exec } = require('child_process');
 const { URL } = require('url');
 
 const CONFIG_FILE = path.join(
@@ -94,5 +93,5 @@ try {
         path.join(os.homedir(), '.protocol-registry', 'log.txt'),
         `${new Date().toISOString()}: ${e.stack}\n`
     );
-    process.exit(1);
+    throw new Error(`Process exit with code 1: ${e.message}`);
 }

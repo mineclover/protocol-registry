@@ -1,14 +1,9 @@
-const { exec } = require('child_process');
-const { promisify } = require('util');
-
-const execAsync = promisify(exec);
-
 /**
  * Test helper for scheme-to-scheme routing
  * This simulates a scenario where one protocol redirects to another
  */
 
-async function createSchemeRouter(fromScheme, toScheme, targetUrl) {
+async function createSchemeRouter(fromScheme, toScheme) {
     // Create a simple Node.js script that redirects from one scheme to another
     const routerScript = `
 const { exec } = require('child_process');
