@@ -27,8 +27,54 @@ This is meant to be used in command-line tools and scripts, not in the browser.
 
 ## Install
 
-```
+### NPM (Recommended)
+
+```bash
 $ npm install protocol-registry
+```
+
+### Git Installation
+
+If you want to install directly from GitHub or use a specific branch/fork:
+
+```bash
+# Install from main branch
+$ npm install git+https://github.com/Shubham-Kumar-2000/protocol-registry.git
+
+# Install from a specific branch
+$ npm install git+https://github.com/Shubham-Kumar-2000/protocol-registry.git#security-patch
+
+# Install from a fork
+$ npm install git+https://github.com/mineclover/protocol-registry.git
+
+# Install from a specific commit
+$ npm install git+https://github.com/Shubham-Kumar-2000/protocol-registry.git#b43e28f
+```
+
+### Alternative Git Installations
+
+```bash
+# Using GitHub CLI
+$ gh repo clone Shubham-Kumar-2000/protocol-registry
+$ cd protocol-registry
+$ npm install
+
+# Using git directly with SSH
+$ npm install git+ssh://git@github.com:Shubham-Kumar-2000/protocol-registry.git
+
+# Using git directly with HTTPS
+$ npm install git+https://github.com/Shubham-Kumar-2000/protocol-registry.git
+```
+
+### Development Installation
+
+For development or contributing:
+
+```bash
+$ git clone https://github.com/Shubham-Kumar-2000/protocol-registry.git
+$ cd protocol-registry
+$ npm install
+$ npm test
 ```
 
 ## Usage
