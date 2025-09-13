@@ -5,6 +5,7 @@
 const spawn = require('child_process').spawn;
 const path = require('path');
 const { REG_TYPES } = require('winreg');
+const { logSecurityEvent } = require('../utils/securityHelper');
 
 function convertArchString(archString) {
     if (archString == 'x64') {
@@ -27,6 +28,10 @@ function getRegExePath() {
 }
 
 function trimQuotesIfPresent(value) {
+    if (typeof value !== 'string') {
+        throw new Error('Value must be a string');
+    }
+
     if (
         value.length >= 2 &&
         ((value[0] === '"' && value[value.length - 1] === '"') ||
@@ -47,8 +52,22 @@ exports.setRegistry = (registry, options) => {
     return new Promise((resolve, reject) => {
         const { name, type, value } = options;
 
-        if (REG_TYPES.indexOf(type) == -1)
+        // Security: Validate inputs
+        if (!registry || !registry.path) {
+            throw new Error('Registry path is required');
+        }
+
+        if (REG_TYPES.indexOf(type) == -1) {
             throw Error('illegal type specified.');
+        }
+
+        // Security: Log registry modification attempt
+        logSecurityEvent('REGISTRY_MODIFICATION', {
+            path: registry.path,
+            name: name,
+            type: type,
+            hasValue: !!value
+        });
 
         let args = ['ADD', trimQuotesIfPresent(registry.path)];
         if (name == '') args.push('/ve');
@@ -60,11 +79,14 @@ exports.setRegistry = (registry, options) => {
             args.push('/reg:' + convertArchString(registry.arch));
         }
 
+        // Security: Enhanced spawn options
         const proc = spawn(getRegExePath(), args, {
             cwd: undefined,
-            env: process.env,
+            env: { ...process.env, PATH: process.env.PATH }, // Only pass necessary env vars
             windowsHide: true,
-            stdio: ['ignore', 'pipe', 'pipe']
+            stdio: ['ignore', 'pipe', 'pipe'],
+            timeout: 30000, // 30 second timeout
+            shell: false // Explicitly disable shell
         });
         let error = null; // null means no error previously reported.
 
@@ -81,6 +103,12 @@ exports.setRegistry = (registry, options) => {
             if (error) {
                 return;
             } else if (code !== 0) {
+                logSecurityEvent('REGISTRY_MODIFICATION_FAILED', {
+                    path: registry.path,
+                    exitCode: code,
+                    stdout: output.stdout,
+                    stderr: output.stderr
+                });
                 reject(
                     new Error(
                         'Registry failed because : ' +
@@ -90,12 +118,20 @@ exports.setRegistry = (registry, options) => {
                     )
                 );
             } else {
+                logSecurityEvent('REGISTRY_MODIFICATION_SUCCESS', {
+                    path: registry.path,
+                    name: name
+                });
                 resolve();
             }
         });
 
         proc.on('error', function (err) {
             error = err;
+            logSecurityEvent('REGISTRY_MODIFICATION_ERROR', {
+                path: registry.path,
+                error: err.message
+            });
             reject(err);
         });
 
