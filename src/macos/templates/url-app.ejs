@@ -1,9 +1,16 @@
 on open location this_URL
-    <%if (terminal > 0) { %>
-        do shell script "defaults write com.protocol.registry.<%- protocol %> current_url '" & this_URL & "'"
-        tell application "<%- application %>" to activate
-    <% } else { %>
-        set command to "<%- command %>"
-        do shell script "export PR_APP_PATH='<%- process.env.PATH %>' ; export PATH=$PR_APP_PATH:$PATH ; sh -lc  \"" & command & "\""
-    <% } %>
+    set node_command to "<%- command %>"
+    try
+        -- Run the node script to get the final absolute path
+        set absolute_path to (do shell script "export PR_APP_PATH='<%- process.env.PATH %>'; export PATH=$PR_APP_PATH:$PATH; sh -lc \"" & node_command & "\"")
+        
+        if absolute_path is not "" then
+            -- Use the 'open' command-line utility via 'do shell script'.
+            -- 'quoted form of' handles spaces and special characters safely.
+            do shell script "open " & quoted form of absolute_path
+        end if
+
+    on error error_message
+        display dialog "[Protocol Registry] File Opener Error: " & error_message buttons {"OK"} default button "OK"
+    end try
 end open location

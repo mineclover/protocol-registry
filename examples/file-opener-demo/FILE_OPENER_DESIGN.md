@@ -56,4 +56,4 @@ fileopener://<프로젝트_별칭>?path=<프로젝트_내_상대경로>
 
 - **`config-manager.js` (설정 관리자)**
   - 사용자가 `fileopener.json` 파일을 쉽게 관리할 수 있도록 돕는 CLI 유틸리티입니다.
-  - `add`, `remove`, `list`, `edit` 등의 명령어를 제공하여 프로젝트 별칭을 관리합니다.
+  - `add`, `remove`, `list` 등의 명령어를 제공하여 프로젝트 별칭을 관리합니다.

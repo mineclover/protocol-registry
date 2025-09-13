@@ -4,7 +4,12 @@ const os = require('os');
 const { exec } = require('child_process');
 const { URL } = require('url');
 
-const CONFIG_FILE = path.join(os.homedir(), '.protocol-registry', 'config', 'fileopener.json');
+const CONFIG_FILE = path.join(
+    os.homedir(),
+    '.protocol-registry',
+    'config',
+    'fileopener.json'
+);
 
 function getConfig() {
     if (!fs.existsSync(CONFIG_FILE)) {
@@ -20,45 +25,27 @@ function openFile(absolutePath) {
         throw new Error(`File does not exist at path: ${absolutePath}`);
     }
 
-    let openCommand;
-    switch (process.platform) {
-        case 'darwin':
-            openCommand = `open "${absolutePath}"`;
-            break;
-        case 'win32': // Windows
-            openCommand = `start "" "${absolutePath}"`;
-            break;
-        case 'linux': // Linux
-            openCommand = `xdg-open "${absolutePath}"`;
-            break;
-        default:
-            throw new Error(`Unsupported platform: ${process.platform}`);
-    }
-
-    console.log(`Executing: ${openCommand}`);
-    exec(openCommand, (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Error opening file: ${error.message}`);
-            return;
-        }
-        if (stderr) {
-            console.error(`Stderr: ${stderr}`);
-            return;
-        }
-        console.log('Successfully executed open command.');
-    });
+    // On success, print the absolute path to stdout. The AppleScript handler will read this.
+    console.log(absolutePath);
 }
 
 function handleUrl(urlString) {
     if (!urlString) {
-        throw new Error("No URL provided.");
+        throw new Error('No URL provided.');
     }
 
     const url = new URL(urlString);
-    const projectName = url.hostname;
+    // Browsers might not pass hostname for simple URLs like "scheme:host".
+    // Handle both url.hostname and url.pathname for robustness.
+    let projectName = url.hostname;
+    if (!projectName && url.pathname) {
+        // On some systems, "fileopener://config" might be parsed with pathname="config"
+        // and an empty hostname. We remove leading slashes if they exist.
+        projectName = url.pathname.replace(/^\/+/g, '');
+    }
 
     if (projectName === 'config') {
-        // Special case: 'config' opens the configuration file itself.
+        // Special case: open the configuration file itself.
         openFile(CONFIG_FILE);
         return;
     }
@@ -76,7 +63,9 @@ function handleUrl(urlString) {
     const projectBasePath = config[projectName];
 
     if (!projectBasePath) {
-        throw new Error(`Project "${projectName}" is not defined in the config file.`);
+        throw new Error(
+            `Project "${projectName}" is not defined in the config file.`
+        );
     }
 
     const absolutePath = path.join(projectBasePath, relativePath);
@@ -87,7 +76,9 @@ function handleUrl(urlString) {
     const resolvedBasePath = path.resolve(projectBasePath);
 
     if (!resolvedPath.startsWith(resolvedBasePath)) {
-        throw new Error('Security violation: Attempted to access a file outside the project directory.');
+        throw new Error(
+            'Security violation: Attempted to access a file outside the project directory.'
+        );
     }
 
     openFile(resolvedPath);
@@ -98,7 +89,10 @@ try {
     handleUrl(urlString);
 } catch (e) {
     // You can write this error to a log file for debugging
-    console.error("An error occurred:", e.message);
-    fs.appendFileSync(path.join(os.homedir(), '.protocol-registry', 'log.txt'), `${new Date().toISOString()}: ${e.stack}\n`);
+    console.error('An error occurred:', e.message);
+    fs.appendFileSync(
+        path.join(os.homedir(), '.protocol-registry', 'log.txt'),
+        `${new Date().toISOString()}: ${e.stack}\n`
+    );
     process.exit(1);
 }

@@ -233,7 +233,10 @@ test('should support scheme-to-scheme routing', async () => {
     const sourceScheme = 'myapp';
     const targetScheme = 'anotherapp';
     const fs = require('fs');
-    const { createSchemeRouter, createTargetHandler } = require('./scheme-router');
+    const {
+        createSchemeRouter,
+        createTargetHandler
+    } = require('./scheme-router');
 
     // Clean up any existing test log
     const testLogPath = path.join(__dirname, 'scheme-routing-test.log');
@@ -243,12 +246,19 @@ test('should support scheme-to-scheme routing', async () => {
 
     // Create router script file
     const routerScriptPath = path.join(__dirname, 'temp-router.js');
-    const routerScript = await createSchemeRouter(sourceScheme, targetScheme, 'test');
+    const routerScript = await createSchemeRouter(
+        sourceScheme,
+        targetScheme,
+        'test'
+    );
     fs.writeFileSync(routerScriptPath, routerScript);
 
     // Create target handler script file
     const handlerScriptPath = path.join(__dirname, 'temp-handler.js');
-    const handlerScript = await createTargetHandler(targetScheme, 'Scheme routing test successful');
+    const handlerScript = await createTargetHandler(
+        targetScheme,
+        'Scheme routing test successful'
+    );
     fs.writeFileSync(handlerScriptPath, handlerScript);
 
     try {
@@ -286,9 +296,12 @@ test('should support scheme-to-scheme routing', async () => {
         expect(targetApp).toBeTruthy();
         expect(sourceApp).not.toBe(targetApp); // They should be different apps
 
-        console.log(`[TEST] Source scheme ${sourceScheme} registered to: ${sourceApp}`);
-        console.log(`[TEST] Target scheme ${targetScheme} registered to: ${targetApp}`);
-
+        console.log(
+            `[TEST] Source scheme ${sourceScheme} registered to: ${sourceApp}`
+        );
+        console.log(
+            `[TEST] Target scheme ${targetScheme} registered to: ${targetApp}`
+        );
     } finally {
         // Clean up
         await ProtocolRegistry.deRegister(sourceScheme, { force: true });
@@ -371,7 +384,10 @@ try {
         routingConfirmed: params.routed === 'true' && params.source === '${sourceScheme}'
     };
 
-    fs.writeFileSync('${path.join(__dirname, 'complex-routing-test.log')}', JSON.stringify(logData, null, 2));
+    fs.writeFileSync('${path.join(
+        __dirname,
+        'complex-routing-test.log'
+    )}', JSON.stringify(logData, null, 2));
 
 } catch (error) {
     console.error('[COMPLEX-HANDLER] Error:', error.message);
@@ -408,15 +424,20 @@ try {
         expect(await ProtocolRegistry.checkIfExists(sourceScheme)).toBeTruthy();
         expect(await ProtocolRegistry.checkIfExists(targetScheme)).toBeTruthy();
 
-        console.log(`[TEST] Complex routing setup complete: ${sourceScheme} -> ${targetScheme}`);
-
+        console.log(
+            `[TEST] Complex routing setup complete: ${sourceScheme} -> ${targetScheme}`
+        );
     } finally {
         // Clean up
         await ProtocolRegistry.deRegister(sourceScheme, { force: true });
         await ProtocolRegistry.deRegister(targetScheme, { force: true });
 
         // Clean up temp files
-        [routerScriptPath, handlerScriptPath, path.join(__dirname, 'complex-routing-test.log')].forEach(file => {
+        [
+            routerScriptPath,
+            handlerScriptPath,
+            path.join(__dirname, 'complex-routing-test.log')
+        ].forEach((file) => {
             if (fs.existsSync(file)) fs.unlinkSync(file);
         });
     }

@@ -1,4 +1,3 @@
-
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
@@ -32,10 +31,14 @@ function addProject(projectName, projectPath) {
         return;
     }
 
-    const absolutePath = projectPath ? path.resolve(projectPath) : process.cwd();
-    
+    const absolutePath = projectPath
+        ? path.resolve(projectPath)
+        : process.cwd();
+
     if (!fs.existsSync(absolutePath)) {
-        console.error(`Error: The specified path does not exist: ${absolutePath}`);
+        console.error(
+            `Error: The specified path does not exist: ${absolutePath}`
+        );
         return;
     }
 
@@ -75,8 +78,6 @@ function listProjects() {
     }
 }
 
-
-
 function printUsage() {
     console.log(`
 Config Manager for File Opener
@@ -94,7 +95,7 @@ Example:
   `);
 }
 
-const [,, command, ...args] = process.argv;
+const [, , command, ...args] = process.argv;
 
 switch (command) {
     case 'list':

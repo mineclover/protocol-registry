@@ -1,4 +1,3 @@
-
 const protocolRegistry = require('../../src');
 
 const protocol = 'fileopener';

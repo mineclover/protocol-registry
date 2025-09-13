@@ -1,4 +1,3 @@
-
 const path = require('path');
 const protocolRegistry = require('../../src'); // Use the local source
 
@@ -13,10 +12,12 @@ async function registerScheme() {
     console.log(`With command: "${command}"`);
 
     try {
-        await protocolRegistry.register(protocol, command, { override: true, terminal: false });
+        await protocolRegistry.register(protocol, command, {
+            override: true,
+            terminal: false
+        });
         console.log('\nProtocol registration successful!');
         console.log('You can now test the protocol.');
-
     } catch (e) {
         console.error('\nError during protocol registration:', e);
     }
