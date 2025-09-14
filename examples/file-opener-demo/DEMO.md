@@ -39,18 +39,38 @@ node ./config-manager.js list
 
 이제 표준화된 URL을 사용하여 데모 폴더 안의 `open-file-demo.js` 파일을 직접 열어보겠습니다.
 
+### 새로운 URL 형식 (권장)
+
 ```bash
-open "fileopener://protocol-registry?path=./open-file-demo.js"
+open "fileopener://protocol-registry/examples/file-opener-demo/open-file-demo.js"
+```
+
+### 기존 URL 형식 (호환성)
+
+```bash
+open "fileopener://protocol-registry?path=examples/file-opener-demo/open-file-demo.js"
 ```
 
 위 명령어를 실행하면, `open-file-demo.js` 파일이 시스템의 기본 편집기에서 열리는 것을 확인할 수 있습니다.
+
+### 웹 리다이렉트 서비스
+
+브라우저에서 직접 파일을 열 수 있는 웹 리다이렉트 서비스도 제공됩니다:
+
+```
+https://fileopener-redirect.astralclover.workers.dev/protocol-registry/path/to/file
+```
+
+예시:
+- `https://fileopener-redirect.astralclover.workers.dev/protocol-registry/README.md`
+- `https://fileopener-redirect.astralclover.workers.dev/protocol-registry/src/index.js`
 
 ### 클릭 가능한 링크로 테스트하기
 
 > **Note**
 > 대부분의 Markdown 뷰어는 보안상의 이유로 `fileopener://`와 같은 커스텀 스킴 링크를 차단합니다.
-> 
-> 클릭 가능한 링크를 테스트하려면, 웹 브라우저에서 `../links.html` 파일을 직접 열고 그 안의 링크를 클릭하세요.
+>
+> 클릭 가능한 링크를 테스트하려면, 웹 브라우저에서 `links.html` 파일을 직접 열고 그 안의 링크를 클릭하세요.
 
 ## 5단계: 프로토콜 삭제
 

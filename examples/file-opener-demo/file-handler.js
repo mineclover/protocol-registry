@@ -33,32 +33,60 @@ function handleUrl(urlString) {
         throw new Error('No URL provided.');
     }
 
-    const url = new URL(urlString);
-    // Browsers might not pass hostname for simple URLs like "scheme:host".
-    // Handle both url.hostname and url.pathname for robustness.
-    let projectName = url.hostname;
-    if (!projectName && url.pathname) {
-        // On some systems, "fileopener://config" might be parsed with pathname="config"
-        // and an empty hostname. We remove leading slashes if they exist.
-        projectName = url.pathname.replace(/^\/+/g, '');
-    }
+    // Decode URL to handle encoded characters
+    const decodedUrlString = decodeURIComponent(urlString);
 
-    if (projectName === 'config') {
-        // Special case: open the configuration file itself.
+    // Debug: Log the decoded URL
+    fs.appendFileSync(
+        path.join(os.homedir(), '.protocol-registry', 'log.txt'),
+        `${new Date().toISOString()}: Decoded URL: ${decodedUrlString}\n`
+    );
+
+    const url = new URL(decodedUrlString);
+
+    // Parse URL to support both formats:
+    // 1. Legacy format: fileopener://projectName?path=/src/file.js
+    // 2. New format: fileopener://projectName/src/file.js
+
+    let projectName = url.hostname;
+    let relativePath = null;
+
+    // Handle special case for config
+    if (projectName === 'config' && !url.pathname.replace(/^\/+/, '')) {
         openFile(CONFIG_FILE);
         return;
     }
 
-    const relativePath = url.searchParams.get('path');
+    // Check if we're using the new format (path in pathname)
+    if (url.pathname && url.pathname !== '/') {
+        // New format: fileopener://projectName/path/to/file
+        relativePath = url.pathname.substring(1); // Remove leading slash
+    } else {
+        // Legacy format: check for path in query parameters
+        relativePath = url.searchParams.get('path');
+    }
+
+    // Fallback for systems that parse differently
+    if (!projectName && url.pathname) {
+        // On some systems, "fileopener://config" might be parsed with pathname="config"
+        // and an empty hostname. We remove leading slashes if they exist.
+        const pathParts = url.pathname.replace(/^\/+/g, '').split('/');
+        projectName = pathParts[0];
+        if (pathParts.length > 1) {
+            relativePath = pathParts.slice(1).join('/');
+        }
+    }
 
     if (!projectName) {
-        throw new Error('Project name not found in URL hostname.');
+        throw new Error('Project name not found in URL.');
     }
+
     if (!relativePath) {
-        throw new Error('"path" query parameter not found in the URL.');
+        throw new Error('File path not found in URL. Use format: fileopener://projectName/path/to/file');
     }
 
     const config = getConfig();
+
     const projectBasePath = config[projectName];
 
     if (!projectBasePath) {
@@ -85,13 +113,18 @@ function handleUrl(urlString) {
 
 try {
     const urlString = process.argv[2];
+    // Debug: Log the received URL
+    fs.appendFileSync(
+        path.join(os.homedir(), '.protocol-registry', 'log.txt'),
+        `${new Date().toISOString()}: Received URL: ${urlString}\n`
+    );
     handleUrl(urlString);
 } catch (e) {
     // You can write this error to a log file for debugging
     console.error('An error occurred:', e.message);
     fs.appendFileSync(
         path.join(os.homedir(), '.protocol-registry', 'log.txt'),
-        `${new Date().toISOString()}: ${e.stack}\n`
+        `${new Date().toISOString()}: Error: ${e.message}\n${new Date().toISOString()}: ${e.stack}\n`
     );
     throw new Error(`Process exit with code 1: ${e.message}`);
 }

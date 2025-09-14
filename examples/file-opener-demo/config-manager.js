@@ -43,6 +43,7 @@ function addProject(projectName, projectPath) {
     }
 
     const config = readConfig();
+
     config[projectName] = absolutePath;
     writeConfig(config);
     console.log(`Success: Added/updated project "${projectName}".`);
@@ -56,8 +57,15 @@ function removeProject(projectName) {
         return;
     }
     const config = readConfig();
+
+    let removed = false;
+
     if (config[projectName]) {
         delete config[projectName];
+        removed = true;
+    }
+
+    if (removed) {
         writeConfig(config);
         console.log(`Success: Removed project "${projectName}".`);
     } else {
@@ -67,6 +75,7 @@ function removeProject(projectName) {
 
 function listProjects() {
     const config = readConfig();
+
     const projects = Object.keys(config);
     if (projects.length === 0) {
         console.log('No projects configured yet.');
@@ -92,6 +101,12 @@ Commands:
 
 Example:
   node examples/config-manager.js add my-project /path/to/your/project
+
+URL Format:
+  fileopener://projectName/path/to/file
+
+Web Redirect Service (for browsers):
+  https://fileopener-redirect.astralclover.workers.dev/projectName/path/to/file
   `);
 }
 

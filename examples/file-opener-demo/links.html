@@ -14,8 +14,20 @@
     <h1>File Opener Scheme Links</h1>
     <p>이 HTML 파일을 웹 브라우저에서 열고 아래 링크들을 클릭하여 테스트하세요.</p>
 
-    <a href="fileopener://protocol-registry?path=examples/file-opener-demo/open-file-demo.js">Open Demo Script</a>
+    <h2>Legacy Format (Query Parameter)</h2>
+    <a href="fileopener://protocol-registry?path=examples/file-opener-demo/open-file-demo.js">Open Demo Script (Legacy)</a>
     <a href="fileopener://config">Open Config File</a>
+
+    <h2>New Format (Path-based)</h2>
+    <p>새로운 형태: <code>fileopener://&lt;projectName&gt;/&lt;path&gt;</code></p>
+    <a href="fileopener://protocol-registry/examples/file-opener-demo/open-file-demo.js">Open Demo Script (New Format)</a>
+    <a href="fileopener://protocol-registry/README.md">Open Project README</a>
+
+    <h2>Web Redirect Service</h2>
+    <p>브라우저에서 파일을 바로 열 수 있는 리다이렉트 서비스:</p>
+    <p><code>https://fileopener-redirect.astralclover.workers.dev/&lt;projectName&gt;/&lt;path&gt;</code></p>
+    <a href="https://fileopener-redirect.astralclover.workers.dev/protocol-registry/README.md">Open README via Web Service</a>
+    <a href="https://fileopener-redirect.astralclover.workers.dev/protocol-registry/examples/file-opener-demo/open-file-demo.js">Open Demo Script via Web Service</a>
 
 </body>
 </html>
